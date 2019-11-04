@@ -16,6 +16,5 @@ def test_pkv_to_dict():
             <k>key2</k>
             <v>value2.1</v>
         </p>"""
-    expected = {'key1': 'value1',
-                'key2': ['value2', 'value2.1']}
+    expected = {"key1": "value1", "key2": ["value2", "value2.1"]}
     assert pkv_to_dict(xml) == expected
