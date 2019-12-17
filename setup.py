@@ -8,13 +8,14 @@ def readme():
 
 setup(
     name="slate_utils",
-    version="0.0.2",
+    version="0.0.3",
     author="Jamie Davis",
     author_email="jamjam@umich.edu",
     description=("Some simple utilites to help automate tasks in Slate."),
     license="BSD",
     packages=["slate_utils"],
     long_description=readme(),
+    long_description_content_type="text/markdown",
     classifiers=[],
-    install_requires=["selenium"],
+    install_requires=["selenium", "umdriver"],
 )
