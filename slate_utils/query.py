@@ -1,4 +1,6 @@
 class QueryTool:
+    """Class for interacting with the Query backend. Mainly used to remove query runs and individual ids from query
+    runs en masse."""
 
     def __init__(self, session):
         self.hostname = session.headers.get('Origin')
@@ -56,13 +58,45 @@ class QueryTool:
         return r
 
     def run_to_browser(self, query):
+        """Run the specified query to browser."""
         url = f"{self.hostname}/manage/query/query?id={query}&output=browser"
         r = self.s.post(url)
         r.raise_for_status()
         return r
 
     def run_query(self, query):
+        """Enqueue a run of the specified query. This uses Slate's native query queue and scheduling mechanism.
+
+
+        Parameters
+        ----------
+        query : str (guid)
+            The guid of the query to run.
+
+        Returns
+        -------
+        requests.response
+        """
         url = f"{self.hostname}/manage/query/query?id={query}"
         r = self.s.post(url, data={'cmd': 'run'})
+        r.raise_for_status()
+        return r
+
+    def force_run_query(self, query):
+        """Force a query to run instantly. Results will be delivered to the sftp destination configured for the query.
+        The filename that is generated will be returned in the response text.
+
+        Parameters
+        ----------
+        query : str (guid)
+            The guid of the query to run.
+
+
+        Returns
+        -------
+        requests.response
+        """
+        url = f"{self.hostname}/manage/service/export?id={query}"
+        r = self.s.get(url)
         r.raise_for_status()
         return r
