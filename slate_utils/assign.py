@@ -4,18 +4,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from umdriver import UMDriver
 
 from slate_utils.wait import wait_method
 
 
 class Assigner:
 
-    def __init__(self, driver, base_url):
-        self.d = driver
+    def __init__(self, driver: UMDriver, base_url: str):
+        self.driver = driver
         self.base_url = base_url
 
     @wait_method(timeout=5)
-    def assign(self, application, bin_=None, reader=None):
+    def assign(self, application: str, bin_: str = None, reader: str = None):
         """Assign an application to a given bin and/or reader.
         
         Parameters
@@ -35,11 +36,11 @@ class Assigner:
               'id': application}
         uri = '/manage/lookup/record'
         url = f'{self.base_url}{uri}?{urlencode(qs)}'
-        self.d.get(url)
+        self.driver.get(url)
         # find the edit bin link for the default workflow via href xpath
         xpath_href = f'{uri}?cmd=edit_bin&id={application}&workflow='
         xpath = f'//a[@data-href="{xpath_href}"]'
-        wait = WebDriverWait(self.d, 10)
+        wait = WebDriverWait(self.driver, 10)
         el = wait.until(EC.visibility_of_element_located((By.XPATH, xpath)))
         el.click()
         # modal is now open, begin filling fields.
@@ -53,6 +54,6 @@ class Assigner:
             reader_el = wait.until(EC.presence_of_element_located(reader_loc))
             # input is hidden, so must be filled by javascript
             js = "el = arguments[0]; el.value = arguments[1];"
-            self.d.execute_script(js, reader_el, reader)
+            self.driver.execute_script(js, reader_el, reader)
         # save the modal
-        self.d.find_element_by_xpath('//button[text()="Save"]').click()
+        self.driver.find_element_by_xpath('//button[text()="Save"]').click()

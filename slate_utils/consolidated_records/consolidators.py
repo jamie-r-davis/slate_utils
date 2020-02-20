@@ -28,7 +28,7 @@ class BaseConsolidator:
         r.raise_for_status()
         return r
 
-    def merge_bulk(self, ids: List[str]) -> Response:
+    def merge_bulk(self, ids: Iterable[str]) -> Response:
         hostname = self.session.headers.get("origin")
         url = f"{hostname}/manage/database/dedupe?cmd=results&q={self.folder}&dataset=&scope={self.scope}"
         payload = {
@@ -38,6 +38,23 @@ class BaseConsolidator:
             "folder": self.folder,
             "m": ids,
             "cmd": "merge",
+        }
+        r = self.session.post(url, payload)
+        r.raise_for_status()
+        return r
+
+    def exclude(self, ids: Iterable[str]) -> Response:
+        if isinstance(ids, str):
+            ids = [ids]
+        hostname = self.session.headers.get('origin')
+        url = f"{hostname}/manage/database/dedupe?cmd=results&q={self.folder}&dataset=&scope={self.scope}"
+        payload = {
+            'base': self.base,
+            'dataset': 0 if self.dataset == '' else self.dataset,
+            'scope': self.scope,
+            'folder': self.folder,
+            'm': ids,
+            'cmd': 'exclude'
         }
         r = self.session.post(url, payload)
         r.raise_for_status()

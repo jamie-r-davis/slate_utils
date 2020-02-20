@@ -4,10 +4,11 @@ import requests
 
 class Importer:
 
-    def __init__(self, session):
+    def __init__(self, session: requests.Session):
         self.session = session
+        self.hostname = self.session.headers.get('origin')
 
-    def force_pickup(self, verbose=False):
+    def force_pickup(self) -> requests.Response:
         """
         Trigger a force pickup.
 
@@ -17,18 +18,20 @@ class Importer:
             When True, the
         """
         url = f"https://{self.hostname}/manage/service/import?cmd=pickup"
-        r = self.session.get(url, stream=True, hooks={'response': print_response})
-        r.raise_for_status()
+        response = self.session.get(url, stream=True, hooks={'response': print_response})
+        response.raise_for_status()
+        return response
 
-    def force_import(self, verbose=False):
+    def force_import(self) -> requests.Response:
         """
         Trigger a force import.
         """
         url = f"http://{self.hostname}/manage/import/load?cmd=process"
-        r = self.session.get(url, stream=True, hooks={'response': print_response})
-        r.raise_for_status()
+        response = self.session.get(url, stream=True, hooks={'response': print_response})
+        response.raise_for_status()
+        return response
 
-def print_response(r, *args, **kwargs):
-    for line in r.iter_lines(decode_unicode=True):
+def print_response(response: requests.Response):
+    for line in response.iter_lines(decode_unicode=True):
         if line:
             print(html.unescape(line).replace('<br />', '\n'))

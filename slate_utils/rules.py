@@ -1,9 +1,12 @@
+import requests
+
+
 class ForceExecutor:
-    def __init__(self, session):
+    def __init__(self, session: requests.Session):
         self.session = session
         self.hostname = session.headers.get("origin")
 
-    def force_execute(self, guid, scope="person"):
+    def force_execute(self, guid: str, scope: str = "person") -> requests.Response:
         """Force the given record to execute.
 
         Parameters
@@ -16,6 +19,6 @@ class ForceExecutor:
             uri = f"/manage/lookup/record?id={guid}"
         url = f"{self.hostname}/{uri}"
         data = {"cmd": "defer"}
-        r = self.session.post(url, data=data)
-        r.raise_for_status()
-        return r
+        response = self.session.post(url, data=data)
+        response.raise_for_status()
+        return response
