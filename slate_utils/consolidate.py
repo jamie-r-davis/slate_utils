@@ -37,7 +37,7 @@ class ConsolidateRecords:
         try:
             assert response.text == "OK"
         except AssertionError:
-            raise ConsolidateRecords(f"{scope}: {response.text}")
+            raise ConsolidatedRecordsError(f"{scope}: {response.text}")
         return response
 
     def refresh_all(self):
