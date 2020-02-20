@@ -1,2 +1,5 @@
+loguru
+lxml
+requests
 selenium
 umdriver

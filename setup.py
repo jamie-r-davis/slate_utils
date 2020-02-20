@@ -17,5 +17,5 @@ setup(
     long_description=readme(),
     long_description_content_type="text/markdown",
     classifiers=[],
-    install_requires=["selenium", "umdriver"],
+    install_requires=["loguru", "requests", "selenium", "umdriver"],
 )

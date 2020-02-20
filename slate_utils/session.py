@@ -2,23 +2,36 @@ from umdriver import UMDriver
 from selenium.webdriver.chrome.options import Options
 import requests
 
-def get_session(hostname, username, password):
+
+def get_session(hostname: str, username: str, password: str) -> requests.Session:
+    """Returns an authenticated session for an internal user.
+
+    Parameters
+    ----------
+    hostname : str
+        The hostname of the slate environment to use, including protocol (eg, https://slateuniversity.net)
+    username : str
+        The user's username
+    password : str
+        The user's password
+    """
+    hostname = parse_hostname(hostname)
     opts = Options()
     opts.headless = True
     with UMDriver(options=opts) as d:
         d.login(username, password)
         d.get(f"{hostname}/manage")
-        s = requests.session()
+        session = requests.session()
         for c in d.get_cookies():
-            s.cookies.set(c['name'], c['value'])
-    headers = {
-        'Host': hostname.replace('https://', ''),
-        'Origin': hostname
-    }
-    s.headers.update(headers)
-    return s
+            session.cookies.set(c["name"], c["value"])
+    headers = {"Host": hostname.replace("https://", ""), "Origin": hostname}
+    session.headers.update(headers)
+    return session
 
-def get_external_session(hostname, username, password):
+
+def get_external_session(
+    hostname: str, username: str, password: str
+) -> requests.Session:
     """Returns an authenticated session for an external user.
 
     Parameters
@@ -30,15 +43,17 @@ def get_external_session(hostname, username, password):
     password : str
         The password to use for authentication
     """
+    hostname = parse_hostname(hostname)
     url = f"{hostname}/manage/login?cmd=external"
-    s = requests.session()
-    s.headers.update({"Origin": hostname})
-    r1 = s.get(url)
-    r2 = s.post(r1.url, data={'user': username, 'password': password})
+    session = requests.session()
+    session.headers.update({"Origin": hostname})
+    r1 = session.get(url)
+    r2 = session.post(r1.url, data={"user": username, "password": password})
     r2.raise_for_status()
-    return s
+    return session
 
-def steal_cookies(driver, session):
+
+def steal_cookies(driver: UMDriver, session: requests.Session) -> requests.Session:
     """Steals the cookies from `driver` and adds them to `session`.
 
     Parameters
@@ -48,6 +63,12 @@ def steal_cookies(driver, session):
     session : requests.Session
         Session instance where cookies will be added.
     """
-    for c in driver.get_cookies():
-        session.cookies.set(c['name'], c['value'])
+    for cookie in driver.get_cookies():
+        session.cookies.set(cookie["name"], cookie["value"])
     return session
+
+
+def parse_hostname(hostname: str) -> str:
+    if hostname.lower().startswith('http'):
+        return hostname.rstrip('/')
+    return f"https://{hostname}".rstrip('/')
