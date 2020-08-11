@@ -28,6 +28,19 @@ def pkv_to_dict(xml: str) -> dict:
 
 
 def dict_to_pkv(obj: dict) -> str:
+    """
+    Serialize a dictionary into an PKV xml string.
+
+    Parameters
+    ----------
+    obj : dict
+        The dictionary to serialize.
+
+    Returns
+    -------
+    str
+        A serialized representation of the dictionary in PKV format.
+    """
     pkv = ""
     for k, v in obj.items():
         if isinstance(v, list):
