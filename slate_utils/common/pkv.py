@@ -1,6 +1,7 @@
 from lxml import html
 
-def pkvtodict(xml):
+
+def pkv_to_dict(xml: str) -> dict:
     """Parses PKV xml to a dictionary. If there are multiple entries for the
     same key, those values will be returned as a list. Otherwise a single
     string will be returned as a value.
@@ -11,14 +12,27 @@ def pkvtodict(xml):
         The xml containing PKV values.
     """
     pkv_dict = {}
-    for p in html.fromstring(xml):
-        k = p.find('k').text
-        v = p.find('v').text
+    for p in html.fromstring(xml).findall("p"):
+        k = p.find("k").text
+        vals = [v.text for v in p.findall("v")]
         if k in pkv_dict:
-            if isinstance(pkv_dict[k], str):
-                pkv_dict[k] = [pkv_dict[k], v]
-            else:
-                pkv_dict[k].append(v)
+            pkv_dict[k] = pkv_dict[k] + vals
         else:
-            pkv_dict[k] = v
+            pkv_dict[k] = vals
+
+    for k, v in pkv_dict.items():
+        if len(v) == 1:
+            pkv_dict[k] = v[0]
+
     return pkv_dict
+
+
+def dict_to_pkv(obj: dict) -> str:
+    pkv = ""
+    for k, v in obj.items():
+        if isinstance(v, list):
+            v_node = "".join(f"<v>{value}</v>" for value in v)
+        else:
+            v_node = f"<v>{v}</v>"
+        pkv += f"<p><k>{k}</k>{v_node}</p>"
+    return pkv

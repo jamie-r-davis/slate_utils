@@ -1,4 +1,3 @@
-import pytest
 from slate_utils.docs.utils import pkv_to_dict
 
 

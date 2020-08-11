@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name="slate_utils",
-    version="0.0.4.2",
+    version="0.0.4.3",
     author="Jamie Davis",
     author_email="jamjam@umich.edu",
     description=("Some simple utilites to help automate tasks in Slate."),
