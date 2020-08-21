@@ -1,15 +1,20 @@
 import requests
 
+from .common import pkv
+from .session import SlateSession
+
 
 class QueryTool:
     """Class for interacting with the Query backend. Mainly used to remove query runs and individual ids from query
     runs en masse."""
 
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: SlateSession):
         self.hostname = session.headers.get("Origin")
         self.session = session
 
-    def remove_run_id(self, query: str, run: str, id: str, id2: str = "") -> requests.Response:
+    def remove_run_id(
+        self, query: str, run: str, id: str, id2: str = ""
+    ) -> requests.Response:
         """Remove an id from a query run.
 
         Parameters
@@ -111,3 +116,56 @@ class QueryTool:
         response = self.session.get(url)
         response.raise_for_status()
         return response
+
+
+class Query:
+    """
+    Class for manipulating a Slate query definition.
+    """
+
+    def __init__(
+        self, guid: str, session: SlateSession, backend_webservice: str = None
+    ):
+        self.guid = guid
+        self.session = session
+        self.backend_webservice = backend_webservice
+
+    @property
+    def current_config(self):
+        r = self.session.get(self.backend_webservice.format(guid=self.guid))
+        r.raise_for_status()
+        return r.json()["row"][0]
+
+    @property
+    def notes(self):
+        return self.current_config.get("notes")
+
+    @property
+    def config(self):
+        return self.current_config.get("config")
+
+    @config.setter
+    def config(self, pkv_dict: dict):
+        hostname = self.session.headers.get("Origin")
+        route = f"{hostname}/manage/query/build?id={self.guid}&cmd=export"
+        payload = {"cmd": "save"}
+        for k, v in pkv_dict.items():
+            payload[k.replace("export_", "")] = v
+        r = self.session.post(route, data=payload)
+        r.raise_for_status()
+
+    @property
+    def xml(self):
+        return self.current_config.get("xml")
+
+    @property
+    def name(self):
+        return self.current_config.get("name")
+
+    @notes.setter
+    def notes(self, notes: str):
+        hostname = self.session.headers.get("Origin")
+        route = f"{hostname}/manage/query/query?id={self.guid}&cmd=notes"
+        payload = {"cmd": "save", "notes": notes}
+        r = self.session.post(route, data=payload)
+        r.raise_for_status()

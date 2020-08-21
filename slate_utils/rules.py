@@ -1,8 +1,10 @@
 import requests
 
+from .session import SlateSession
+
 
 class ForceExecutor:
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: SlateSession):
         self.session = session
         self.hostname = session.headers.get("origin")
 

@@ -27,7 +27,7 @@ def pkv_to_dict(xml: str) -> dict:
     return pkv_dict
 
 
-def dict_to_pkv(obj: dict) -> str:
+def dict_to_pkv(obj: dict, duplicate_keys=True) -> str:
     """
     Serialize a dictionary into an PKV xml string.
 
@@ -35,6 +35,9 @@ def dict_to_pkv(obj: dict) -> str:
     ----------
     obj : dict
         The dictionary to serialize.
+    duplicate_keys : bool
+        Whether the returned xml should return duplicate pkv entries when a key has multiple values (True) or whether
+        to nest all values under a single entry (False).
 
     Returns
     -------
@@ -44,7 +47,12 @@ def dict_to_pkv(obj: dict) -> str:
     pkv = ""
     for k, v in obj.items():
         if isinstance(v, list):
-            v_node = "".join(f"<v>{value}</v>" for value in v)
+            if duplicate_keys:
+                for value in v:
+                    pkv += f"<p><k>{k}</k><v>{value}</v></p>"
+                continue
+            else:
+                v_node = "".join(f"<v>{value}</v>" for value in v)
         else:
             v_node = f"<v>{v}</v>"
         pkv += f"<p><k>{k}</k>{v_node}</p>"

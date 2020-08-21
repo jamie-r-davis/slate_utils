@@ -1,12 +1,14 @@
 import html
+
 import requests
+
+from .session import SlateSession
 
 
 class Importer:
-
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: SlateSession):
         self.session = session
-        self.hostname = self.session.headers.get('origin')
+        self.hostname = self.session.headers.get("origin")
 
     def force_pickup(self) -> requests.Response:
         """
@@ -18,7 +20,9 @@ class Importer:
             When True, the
         """
         url = f"https://{self.hostname}/manage/service/import?cmd=pickup"
-        response = self.session.get(url, stream=True, hooks={'response': print_response})
+        response = self.session.get(
+            url, stream=True, hooks={"response": print_response}
+        )
         response.raise_for_status()
         return response
 
@@ -27,11 +31,14 @@ class Importer:
         Trigger a force import.
         """
         url = f"http://{self.hostname}/manage/import/load?cmd=process"
-        response = self.session.get(url, stream=True, hooks={'response': print_response})
+        response = self.session.get(
+            url, stream=True, hooks={"response": print_response}
+        )
         response.raise_for_status()
         return response
+
 
 def print_response(response: requests.Response):
     for line in response.iter_lines(decode_unicode=True):
         if line:
-            print(html.unescape(line).replace('<br />', '\n'))
+            print(html.unescape(line).replace("<br />", "\n"))

@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 def readme():
@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name="slate_utils",
-    version="0.0.4.3",
+    version="0.0.5.1",
     author="Jamie Davis",
     author_email="jamjam@umich.edu",
     description=("Some simple utilites to help automate tasks in Slate."),
@@ -17,5 +17,5 @@ setup(
     long_description=readme(),
     long_description_content_type="text/markdown",
     classifiers=[],
-    install_requires=["loguru", "requests", "selenium", "umdriver"],
+    install_requires=["loguru", "lxml", "requests", "selenium", "umdriver"],
 )

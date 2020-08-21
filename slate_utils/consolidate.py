@@ -1,9 +1,10 @@
 import logging
 
-from requests import Response, Session
+import requests
 
 from slate_utils.common.exceptions import ConsolidatedRecordsError
 
+from .session import SlateSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -19,11 +20,11 @@ class ConsolidateRecords:
         "job_key",
     ]
 
-    def __init__(self, session: Session):
+    def __init__(self, session: SlateSession):
         self.hostname = session.headers.get("origin")
         self.session = session
 
-    def refresh_one(self, scope: str) -> Response:
+    def refresh_one(self, scope: str) -> requests.Response:
         """Refresh a single scope
 
         Parameters
