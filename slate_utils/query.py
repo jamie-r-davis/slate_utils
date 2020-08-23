@@ -1,7 +1,7 @@
 import requests
 
-from .common import pkv
-from .session import SlateSession
+from slate_utils.common import pkv
+from slate_utils.session import SlateSession
 
 
 class QueryTool:

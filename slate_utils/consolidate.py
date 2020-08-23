@@ -4,7 +4,7 @@ import requests
 
 from slate_utils.common.exceptions import ConsolidatedRecordsError
 
-from .session import SlateSession
+from slate_utils.session import SlateSession
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

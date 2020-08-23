@@ -1,6 +1,6 @@
 import requests
 
-from .session import SlateSession
+from slate_utils.session import SlateSession
 
 
 class ForceExecutor:
