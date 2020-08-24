@@ -1,5 +1,6 @@
 import requests
-
+from bs4 import BeautifulSoup
+from slate_utils.common.html import parse_form
 from slate_utils.common import pkv
 from slate_utils.session import SlateSession
 
@@ -123,49 +124,39 @@ class Query:
     Class for manipulating a Slate query definition.
     """
 
-    def __init__(
-        self, guid: str, session: SlateSession, backend_webservice: str = None
-    ):
+    def __init__(self, guid: str, session: SlateSession):
         self.guid = guid
         self.session = session
-        self.backend_webservice = backend_webservice
-
-    @property
-    def current_config(self):
-        r = self.session.get(self.backend_webservice.format(guid=self.guid))
-        r.raise_for_status()
-        return r.json()["row"][0]
+        self.hostname = self.session.headers.get('Origin')
 
     @property
     def notes(self):
-        return self.current_config.get("notes")
+        route = f'{self.hostname}/manage/query/query/id={self.guid}&cmd=notes'
+        r = self.session.get(route)
+        soup = BeautifulSoup(r.text)
+        return soup.find('textarea', {'id': 'notes'}).text
 
-    @property
-    def config(self):
-        return self.current_config.get("config")
-
-    @config.setter
-    def config(self, pkv_dict: dict):
-        hostname = self.session.headers.get("Origin")
-        route = f"{hostname}/manage/query/build?id={self.guid}&cmd=export"
-        payload = {"cmd": "save"}
-        for k, v in pkv_dict.items():
-            payload[k.replace("export_", "")] = v
+    @notes.setter
+    def notes(self, notes: str) -> str:
+        route = f"{self.hostname}/manage/query/query?id={self.guid}&cmd=notes"
+        payload = {"cmd": "save", "notes": notes}
         r = self.session.post(route, data=payload)
         r.raise_for_status()
 
     @property
-    def xml(self):
-        return self.current_config.get("xml")
+    def config(self) -> dict:
+        route = f"{self.hostname}/manage/query/build?id={self.guid}&cmd=export"
+        r = self.session.get(route)
+        soup = BeautifulSoup(r.text)
+        form = soup.find('form')
+        form_values = parse_form(form)
+        return form_values
 
-    @property
-    def name(self):
-        return self.current_config.get("name")
-
-    @notes.setter
-    def notes(self, notes: str):
-        hostname = self.session.headers.get("Origin")
-        route = f"{hostname}/manage/query/query?id={self.guid}&cmd=notes"
-        payload = {"cmd": "save", "notes": notes}
+    @config.setter
+    def config(self, pkv_dict: dict) -> None:
+        route = f"{self.hostname}/manage/query/build?id={self.guid}&cmd=export"
+        payload = {"cmd": "save"}
+        for k, v in pkv_dict.items():
+            payload[k.replace("export_", "")] = v
         r = self.session.post(route, data=payload)
         r.raise_for_status()

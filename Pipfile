@@ -4,10 +4,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+python-dotenv = "*"
 pytest = "*"
 twine = "*"
 
 [packages]
+bs4 = "*"
 loguru = "*"
 lxml = "*"
 requests = "*"
